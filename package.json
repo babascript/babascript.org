@@ -1,0 +1,28 @@
+{
+  "name": "express-city",
+  "version": "0.5.0",
+  "private": true,
+  "scripts": {
+    "start": "node web.js start"
+  },
+  "dependencies": {
+    "coffee-script": "*",
+    "hooker": "*",
+    "optimist": "*",
+    "underscore": "*",
+    "underscore.string": "*",
+    "moment": "*",
+    "direquire": "*",
+    "express": "*",
+    "mongoose": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "connect-mongo": "*",
+    "connect-asset": "*",
+    "connect-stream": "*",
+    "st": "*",
+    "jade": "*",
+    "stylus": "*",
+    "nib": "*"
+  }
+}
