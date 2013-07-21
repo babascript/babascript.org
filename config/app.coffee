@@ -10,7 +10,7 @@ connect =
   assets: (require 'connect-asset')()
   stream: (require 'connect-stream')
   static: (require 'st')
-    url: '/'
+    url: '/public/'
     path: path.resolve 'public'
     index: no
     passthrough: yes
