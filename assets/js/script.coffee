@@ -1,1 +1,4 @@
-console.log 'coffee script'
+Backbone.history.start()
+linda.io.on "connect", ->
+  console.log "connect"
+  
