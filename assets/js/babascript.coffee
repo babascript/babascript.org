@@ -1,6 +1,6 @@
 window.BabaScript = {}
 BabaScript = window.BabaScript
-io = new RocketIO().connect("http://localhost:5000")
+io = new RocketIO().connect("http://linda.masuilab.org")
 window.linda = new Linda(io)
 window.ts    = new linda.TupleSpace("test")
 
@@ -14,14 +14,19 @@ class BaseView extends Backbone.View
     tuple = ["babascript", "return", cid, value, option]
     ts.write tuple
 
-class BaseRouting extends Backbone.Router
+class BaseRouter extends Backbone.Router
 
   routes:
-    ":tuplespace": "test" 
-    ":tuplespace/:view": "test"
+    "doc": "doc"
+    "client/": "test"
+    "client/:tuplespace/:view": "test"
+    "": "index"
 
   index: ->
     console.log "index"
+
+  doc: ->
+    console.log "doc"
 
   test: (tuplespace, viewName)->
     console.log "routing"    
@@ -29,7 +34,6 @@ class BaseRouting extends Backbone.Router
       console.log "nai"
       return
     view = new BabaScript.Views[viewName]
-    console.log view
     view.render()
 
 # Base Views
@@ -39,9 +43,20 @@ class IndexView   extends BaseView
     @el.html @template()
 
 class BooleanView extends BaseView
+
+  events:
+    "click .js-true": "returnTrue"
+    "click .js-false": "returnFalse"
+
   template: _.template ($ "#boolean-input-view").html()
   render: ->
-    @el.html @template()
+    @el.html @template({title: "hogerfuga"})
+
+  returnTrue: ->
+    console.log "true"
+
+  returnFalse: ->
+    console.log "false"
 
 class NumberView  extends BaseView
   template: _.template ($ "#number-input-view").html()
@@ -65,4 +80,4 @@ BabaScript.Views =
   number: NumberView
   string: StringView
   list: ListView
-BabaScript.Applicaton = new BaseRouting()
+BabaScript.BaseRouter = BaseRouter

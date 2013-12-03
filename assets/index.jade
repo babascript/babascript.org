@@ -2,10 +2,41 @@
 html
   head
     meta(charset='utf-8')
-    link(rel='stylesheet', href='/css/style.css')
-
+    link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css")
+    
   body
-    h1 gruntcity
-    p welcome to gruntcity
-    script(src='/js/script.js')
-
+    nav.navbar.navbar-default(role="navigation")
+      div.navbar-header
+        a.navbar-brand BabaScript Client
+    div#content.container
+  script#document-page(type="text/template")
+    div.documet-page
+      h1 ドキュメントです！
+  script#index-page(type="text/template")
+    div.index-page
+      h1 いんでっくすぺーじだよ〜
+  script#client-page(type="text/template")
+    div.client-page
+      h1 くらいあんと
+  script#number-input-view(type="text/template")
+    div.number
+      h1 数値を入力！
+  script#boolean-input-view(type="text/template")
+    div.bool
+      h1 <%= title %>
+      button#true.btn.btn-default.btn-block(type="button") はい
+      button#false.btn.btn-default.btn-block(type="button") いいえ
+  script#string-input-view(type="text/template")
+    div.string
+      h1 文字列を入力
+  script#list-input-view(type="text/template")
+    div.list
+      h1 リストのなかから選択
+    
+  script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
+  script(src='//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js')
+  script(src="/js/linda.js")
+  script(src='/js/underscore.js')
+  script(src='/js/backbone.js')
+  script(src='/js/babascript.js')
+  script(src='/js/script.js')
