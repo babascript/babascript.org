@@ -5,9 +5,10 @@ window.linda = new Linda(io)
 window.ts    = new linda.TupleSpace("test")
 
 class BaseView extends Backbone.View
+
   el: $ "#content"
 
-  constructor: ->
+  initialize: ->
     console.log "constructor"
 
   returnValue: (value, option={})->
@@ -52,8 +53,9 @@ class BooleanView extends BaseView
     "click .js-false": "returnFalse"
 
   template: _.template ($ "#boolean-input-view").html()
+
   render: ->
-    @el.html @template({title: "hogerfuga"})
+    @$el.html @template({title: "hogerfuga"})
 
   returnTrue: ->
     console.log "true"

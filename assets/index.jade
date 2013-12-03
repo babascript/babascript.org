@@ -3,7 +3,7 @@ html
   head
     meta(charset='utf-8')
     link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css")
-    
+
   body
     nav.navbar.navbar-default(role="navigation")
       div.navbar-header
@@ -24,15 +24,15 @@ html
   script#boolean-input-view(type="text/template")
     div.bool
       h1 <%= title %>
-      button#true.btn.btn-default.btn-block(type="button") はい
-      button#false.btn.btn-default.btn-block(type="button") いいえ
+      button.js-true.btn.btn-default.btn-block(type="button") はい
+      button.js-false.btn.btn-default.btn-block(type="button") いいえ
   script#string-input-view(type="text/template")
     div.string
       h1 文字列を入力
   script#list-input-view(type="text/template")
     div.list
       h1 リストのなかから選択
-    
+
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src='//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js')
   script(src="/js/linda.js")
