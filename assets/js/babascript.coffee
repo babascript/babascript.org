@@ -22,6 +22,9 @@ class BaseRouter extends Backbone.Router
     "client/:tuplespace/:view": "test"
     "": "index"
 
+  initialize: ->
+    Backbone.history.start pushState: on
+
   index: ->
     console.log "index"
 
