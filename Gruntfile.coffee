@@ -162,29 +162,6 @@ module.exports = (grunt) ->
           cwd: 'assets/'
           src: [ '**/*.coffee' ]
         }]
-      server:
-        files: [
-          {
-            expand: yes
-            cwd: 'events/'
-            src: [ '**/*.coffee' ]
-          }
-          {
-            expand: yes
-            cwd: 'models/'
-            src: [ '**/*.coffee' ]
-          }
-          {
-            expand: yes
-            cwd: 'helper/'
-            src: [ '**/*.coffee' ]
-          }
-          {
-            expand: yes
-            cwd: 'tests/'
-            src: [ '**/*.coffee' ]
-          }
-        ]
 
     csslint:
       options:
@@ -241,10 +218,7 @@ module.exports = (grunt) ->
         tasks: ['coffeelint:gruntfile']
       client_coffee:
         files: ['assets/**/*.coffee']
-        tasks: ['coffeelint:client', 'coffee', 'uglify', 'simplemocha:client']
-      server_coffee:
-        files: ['{config,events,models,helper,tests}/**/*.coffee']
-        tasks: ['coffeelint:server', 'simplemocha:server']
+        tasks: ['coffeelint:client', 'coffee', 'uglify', 'simplemocha']
       jade:
         files: ['assets/*.jade']
         tasks: ['jade']
