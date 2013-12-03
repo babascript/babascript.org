@@ -29,8 +29,8 @@ class BaseRouter extends Backbone.Router
     console.log "doc"
 
   test: (tuplespace, viewName)->
-    console.log "routing"    
-    if !BabaScript.Views[viewName]? 
+    console.log "routing"
+    if !BabaScript.Views[viewName]?
       console.log "nai"
       return
     view = new BabaScript.Views[viewName]
