@@ -12,7 +12,7 @@ class ApplicationView extends Backbone.View
   change: (viewName)->
     view = switch viewName
       when "", "index"
-        new IndexView()
+        new ClientView()
       when "boolean", "bool"
         new BooleanView()
       when "string"
@@ -22,7 +22,7 @@ class ApplicationView extends Backbone.View
       when "number", "int"
         new NumberView()
       else
-        new IndexView()
+        new ClientView()
     @render view.el
 
 class BaseView extends Backbone.View
@@ -60,6 +60,12 @@ class Router extends Backbone.Router
 
 class IndexView extends BaseView
   template: _.template ($ "#index-page").html()
+
+  initialize: ->
+    @$el.html @template()
+
+class ClientView extends BaseView
+  template: _.template ($ "#client-page").html()
 
   initialize: ->
     @$el.html @template()
