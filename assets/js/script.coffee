@@ -118,7 +118,6 @@ class ListView extends BaseView
     @render option
 
   render: (option)->
-    console.log option
     @$el.html @template option
 
   returnItem: ->

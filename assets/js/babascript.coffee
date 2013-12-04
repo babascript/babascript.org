@@ -25,6 +25,9 @@ class Tuple extends Backbone.Model
   toTuple: (type)->
     return ["babascript", @get("type"), @get("cid"), @get("value")]
 
+  getFormat: ->
+    return @get(3).format
+
 class Tuples extends Backbone.Collection
   model: Tuple
 
@@ -47,17 +50,17 @@ class Client
     if @tasks.length > 0
       console.log "task is remained"
       @task = @tasks.shift()
-      format = @task.get(3).format || "boolean"
+      format = @task.getFormat() || "boolean"
       app.router.navigate "/client/takumibaba/#{format}", true
       # タスクがあるならそれを優先してやらせる
     @ts.take ["babascript", "eval"], (tuple, info)=>
       @task = new Tuple(tuple)
       @tasks.push @task
-      format = @task.get(3).format || "boolean"
+      format = @task.getFormat() || "boolean"
       app.router.navigate "/client/takumibaba/#{format}", true
 
   cancel: ->
-    @ts.write @currentTask
+    # @ts.write @task.toTuple()
     @tasks.remove @task
     @next()
 
