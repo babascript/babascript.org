@@ -1,125 +1,76 @@
-window.BabaScript = {}
-BabaScript = window.BabaScript
-# io = new RocketIO().connect("http://linda.masuilab.org")
-# window.linda = new Linda(io)
-# window.ts    = new linda.TupleSpace("takumibaba")
+# Application
+#  routing
+#  mainView
+#   each View
+#  tuple
+# Tuple
+# Tuples
 
-class BaseView extends Backbone.View
-  el: $ "#content"
+# BabaScript elements
+class Tuple extends Backbone.Model
+  defaults:
+    type: null
+    key: null
+    cid: null
+    value: null
+    format: null
+    broadcast: null
+    options: null
 
-  initialize: ->
+  initialize: (t)->
+    @set "key", t[2]
+    for key, value of t[3]
+      @set key, value
 
-  returnValue: (value, option={})->
-    BabaScript.Client.returnValue value, option
+  toTuple: (type)->
+    return ["babascript", @get("type"), @get("cid"), @get("value")]
 
-class BaseRouter extends Backbone.Router
-
-  tasks: []
-  routes:
-    "doc": "doc"
-    "client/:tuplespace/": "client"
-    "client/:tuplespace/:view": "client"
-    "": "index"
-
-  initialize: ->
-    Backbone.history.start pushState: on
-
-  index: ->
-    # console.log "index"
-
-  doc: ->
-    # console.log "doc"
-
-  client: (tuplespace, viewName)->
-    if !window.BabaScript.Client?
-      @navigate "/client/#{tuplespace}/index"
-      viewName = "index"
-    if !BabaScript.Views[viewName]?
-      return
-    $("#content").empty()
-    view = new BabaScript.Views[viewName]
-    view.render()
+class Tuples extends Backbone.Collection
+  model: Tuple
 
 class Client
 
-  tasks: []
-  currentTask: {}
+  task: null
+  tasks: new Tuples()
   linda: null
   ts:    null
 
   constructor: ->
     io = new RocketIO().connect("http://linda.masuilab.org")
     @linda = new Linda(io)
-    @ts    = new @linda.TupleSpace("takumibaba")
+    @ts    = new @linda.TupleSpace("baba")
+    @tasks = new Tuples()
     @linda.io.on "connect", =>
       @next()
 
-  next: ->
+  next: (callback)->
+    if @tasks.length > 0
+      console.log "task is remained"
+      @task = @tasks.shift()
+      format = @task.get(3).format || "boolean"
+      app.router.navigate "/client/takumibaba/#{format}", true
+      # タスクがあるならそれを優先してやらせる
     @ts.take ["babascript", "eval"], (tuple, info)=>
-      @tasks.push tuple
-      format = tuple[3].format || "boolean"
-      Application.navigate "/client/takumibaba/#{format}", true
-      @currentTask = tuple
+      @task = new Tuple(tuple)
+      @tasks.push @task
+      format = @task.get(3).format || "boolean"
+      app.router.navigate "/client/takumibaba/#{format}", true
 
   cancel: ->
     @ts.write @currentTask
-
-  returnValue: (value, option={})->
-    @ts.write ["babascript", "return", @currentTask[4].callback, value, option]
-    Application.navigate "/client/#{@ts.name}/index", true
+    @tasks.remove @task
     @next()
 
-# Base Views
-class IndexView   extends BaseView
-  template: _.template ($ "#index-page").html()
+  returnValue: (value, option={})->
+    @task.set "value", value
+    @task.set "type", "return"
+    @ts.write @task.toTuple()
+    @tasks.remove @task
+    app.router.navigate "/client/takumibaba/index", true
+    @next()
 
-  initialize: ->
-    console.log "index"
+  numberOfTask: ->
+    return @tasks.length()
 
-  render: ->
-    @$el.html @template()
-    window.BabaScript.Client ?= new Client()
-
-class BooleanView extends BaseView
-
-  events:
-    "click .js-true": "returnTrue"
-    "click .js-false": "returnFalse"
-
-  template: _.template ($ "#boolean-input-view").html()
-
-  render: ->
-    @$el.html @template({title: "hogerfuga"})
-
-  returnTrue: ->
-    console.log "true"
-    @returnValue true
-
-  returnFalse: ->
-    console.log "false"
-    @returnValue false
-
-class NumberView  extends BaseView
-  template: _.template ($ "#number-input-view").html()
-  render: ->
-    @$el.html @template()
-
-class StringView  extends BaseView
-  template: _.template ($ "#string-input-view").html()
-  render: ->
-    @$el.html @template()
-
-class ListView    extends BaseView
-  template: _.template ($ "#list-input-view").html()
-  render: ->
-    @$el.html @template()
-
-BabaScript.Views =
-  base: BaseView
-  index: IndexView
-  boolean: BooleanView
-  number: NumberView
-  string: StringView
-  list: ListView
-BabaScript.BaseRouter = BaseRouter
-Application = new BaseRouter()
+window.app =
+  client: new Client()
