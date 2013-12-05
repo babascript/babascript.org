@@ -60,7 +60,7 @@ class Client
       app.router.navigate "/client/takumibaba/#{format}", true
 
   cancel: ->
-    # @ts.write @task.toTuple()
+    # @ts.write @tas  k.toTuple()
     @tasks.remove @task
     @next()
 
