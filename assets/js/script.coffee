@@ -24,16 +24,21 @@ class ApplicationView extends Backbone.View
       else
         new ClientView()
     @render view.el
+    console.log viewName
 
 class BaseView extends Backbone.View
   tagName: "div"
 
   initalize: ->
-    _.bindAll @, "render"
-    app.client.task.bind "change:[cid]"
+    @$el.addClass "row"
 
   returnValue: (value, option={})->
-    app.client.returnValue value, option
+    app.Client.returnValue value, option
+
+  cancel: ->
+    app.Client.cancel()
+
+  render: ->
 
 class Router extends Backbone.Router
 
@@ -53,9 +58,10 @@ class Router extends Backbone.Router
     console.log "doc"
 
   client: (tuplespace, viewName)->
-    if window.app.client.tasks.length is 0
+    window.app.Client ?= new Client tuplespace
+    if !window.app.Client.task?
       viewName = "index"
-      @navigate "/client/takumibaba/index"
+      @navigate "/client/#{tuplespace}/index"
     app.mainView.change viewName
 
 class IndexView extends BaseView
@@ -77,7 +83,7 @@ class StringView extends BaseView
 
   initialize: ->
     option =
-      title: app.client.task.get "key"
+      title: app.Client.task.get "key"
     @render option
 
   render: (option)->
@@ -95,7 +101,7 @@ class BooleanView extends BaseView
 
   initialize: ->
     option =
-      title: app.client.task.get "key"
+      title: app.Client.task.get "key"
     @render(option)
 
   render: (option)->
@@ -113,8 +119,8 @@ class ListView extends BaseView
 
   initialize: ->
     option =
-      title: app.client.task.get "key"
-      items: app.client.task.get "list"
+      title: app.Client.task.get "key"
+      items: app.Client.task.get("option").list
     @render option
 
   render: (option)->
@@ -130,7 +136,7 @@ class NumberView extends BaseView
 
   initialize: ->
     option =
-      title: app.client.task.get "key"
+      title: app.Client.task.get "key"
     @render option
 
   render: (option)->

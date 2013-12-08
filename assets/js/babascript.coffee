@@ -1,79 +1,142 @@
-# Application
-#  routing
-#  mainView
-#   each View
-#  tuple
-# Tuple
-# Tuples
-
-# BabaScript elements
 class Tuple extends Backbone.Model
   defaults:
     type: null
-    key: null
     cid: null
-    value: null
     format: null
-    broadcast: null
     options: null
 
-  initialize: (t)->
-    @set "key", t[2]
-    for key, value of t[3]
-      @set key, value
+  initialize: ->
+
 
   toTuple: (type)->
     return ["babascript", @get("type"), @get("cid"), @get("value")]
-
-  getFormat: ->
-    return @get(3).format
 
 class Tuples extends Backbone.Collection
   model: Tuple
 
 class Client
 
-  task: null
+  task:  null
   tasks: new Tuples()
   linda: null
   ts:    null
+  id:    null
 
-  constructor: ->
+  constructor: (name)->
     io = new RocketIO().connect("http://linda.masuilab.org")
     @linda = new Linda(io)
-    @ts    = new @linda.TupleSpace("baba")
+    @ts    = new @linda.TupleSpace(name)
     @tasks = new Tuples()
+    @id = @getOrCreateId()
+    console.log @id
     @linda.io.on "connect", =>
       @next()
+      @watchUnicast()
+      @watchBroadcast()
+      @watchCancel()
 
   next: (callback)->
     if @tasks.length > 0
       console.log "task is remained"
-      @task = @tasks.shift()
+      @task = @tasks.at 0
       format = @task.getFormat() || "boolean"
-      app.router.navigate "/client/takumibaba/#{format}", true
+      app.router.navigate "/client/#{@ts.name}/#{format}", true
       # タスクがあるならそれを優先してやらせる
-    @ts.take ["babascript", "eval"], (tuple, info)=>
-      @task = new Tuple(tuple)
-      @tasks.push @task
-      format = @task.getFormat() || "boolean"
-      app.router.navigate "/client/takumibaba/#{format}", true
+    else
+      @ts.take ["babascript", "eval"], (tuple, info)=>
+        task = new Tuple
+          type: tuple[1]
+          key: tuple[2]
+          format: tuple[3].format || "boolean"
+          cid: tuple[3].cid || tuple[4].callback
+          option: tuple[3]
+        @tasks.push task
+        if @tasks.length <= 1
+          @task = @tasks.at 0
+          format = @task.get("format") || "boolean"
+          app.router.navigate "/client/#{@ts.name}/#{format}", true
+
+  watchUnicast: ->
+    @ts.watch ["babascript", @id], (tuple, info)=>
+      console.log "unicast!"
+      console.log tuple
+      task = new Tuple
+        type: "unicast"
+        key: tuple[2]
+        format: tuple[3].format || "boolean"
+        cid: tuple[3].cid || ""
+        option: tuple[3]
+      @tasks.push task
+      if @tasks.length <= 1
+        @task = @tasks.at 0
+        format = @task.get("format") || "boolean"
+        app.router.navigate "/client/#{@ts.name}/#{format}", true
+
+  watchBroadcast: ->
+    @ts.watch ["babascript", "broadcast"], (tuple, info)=>
+      console.log "broadcast!"
+      console.log tuple
+      if tuple[2] is "ping"
+        @ts.write ["babascript", "pong", @id]
+      else
+        task = new Tuple
+          type: "broadcast"
+          key: tuple[2]
+          format: tuple[3].format || "boolean"
+          cid: tuple[3].cid || ""
+          option: tuple[3]
+        @tasks.push task
+        if @tasks.length <= 1
+          @task = @tasks.at 0
+          format = @task.get("format") || "boolean"
+          app.router.navigate "/client/#{@ts.name}/#{format}", true
+
+  watchCancel: ->
+    @ts.watch ["babascript", "cancel"], (tuple, info)=>
+      callbackId = tuple[2]
+      cancelTask = @tasks.findWhere cid: callbackId
+      if cancelTask?
+        @tasks.remove cancelTask
+        console.log @task
+        console.log cancelTask
+        if @task.get("cid") is cancelTask.get("cid")
+          @task = null
+          app.router.navigate "/client/#{@ts.name}/index", true
 
   cancel: ->
-    # @ts.write @tas  k.toTuple()
+    @ts.write @task.toTuple()
     @tasks.remove @task
+    @task = null
     @next()
 
   returnValue: (value, option={})->
-    @task.set "value", value
-    @task.set "type", "return"
-    @ts.write @task.toTuple()
+    task = new Tuple
+      type: "return"
+      value: value
+      cid: @task.get "cid"
+    console.log task.toTuple()
+    @ts.write task.toTuple()
     @tasks.remove @task
-    app.router.navigate "/client/takumibaba/index", true
+    @task = null
+    app.router.navigate "/client/#{@ts.name}/index", true
     @next()
 
   numberOfTask: ->
     return @tasks.length()
 
-window.app =
-  client: new Client()
+  getOrCreateId: ->
+    storage = window.localStorage
+    if storage?
+      if storage.getItem "id"
+        return storage.getItem "id"
+      else
+        console.log "id isn't exist"
+        id = (moment().valueOf())+(Math.random()%10000).toString()
+        storage.setItem "id", id
+        return id
+    else
+      return (moment().valueOf())+(Math.random()%10000).toString()
+
+
+window.Client = Client
+window.app = {}
