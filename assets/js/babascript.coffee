@@ -18,28 +18,31 @@ class Client
 
   task:  null
   tasks: new Tuples()
-  linda: null
+  @linda: null
   ts:    null
   id:    null
 
   constructor: (name)->
-    io = new RocketIO().connect("http://linda.masuilab.org")
+    io     = new RocketIO().connect("http://linda.masuilab.org")
     @linda = new Linda(io)
     @ts    = new @linda.TupleSpace(name)
     @tasks = new Tuples()
     @id = @getOrCreateId()
-    console.log @id
-    @linda.io.on "connect", =>
+    @linda.io.once "connect", =>
       @next()
       @watchUnicast()
       @watchBroadcast()
       @watchCancel()
+      @ts.write ["babascript", "alive", @id]
+      setInterval =>
+        @ts.write ["babascript", "alive", @id]
+      , 1000*60
 
   next: (callback)->
     if @tasks.length > 0
       console.log "task is remained"
       @task = @tasks.at 0
-      format = @task.getFormat() || "boolean"
+      format = @task.get("format") || "boolean"
       app.router.navigate "/client/#{@ts.name}/#{format}", true
       # タスクがあるならそれを優先してやらせる
     else
@@ -57,7 +60,7 @@ class Client
           app.router.navigate "/client/#{@ts.name}/#{format}", true
 
   watchUnicast: ->
-    @ts.watch ["babascript", @id], (tuple, info)=>
+    @ts.take ["babascript", @id], (tuple, info)=>
       console.log "unicast!"
       console.log tuple
       task = new Tuple
@@ -130,7 +133,6 @@ class Client
       if storage.getItem "id"
         return storage.getItem "id"
       else
-        console.log "id isn't exist"
         id = (moment().valueOf())+(Math.random()%10000).toString()
         storage.setItem "id", id
         return id
