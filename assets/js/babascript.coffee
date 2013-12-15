@@ -9,7 +9,11 @@ class Tuple extends Backbone.Model
 
 
   toTuple: (type)->
-    return ["babascript", @get("type"), @get("cid"), @get("value")]
+    t = @get "type"
+    cid = @get "cid"
+    v = @get "value"
+    options = @get "options"
+    return ["babascript", t, cid, v, options]
 
 class Tuples extends Backbone.Collection
   model: Tuple
@@ -26,6 +30,8 @@ class Client
     io     = new RocketIO().connect("http://linda.masuilab.org")
     @linda = new Linda(io)
     @ts    = new @linda.TupleSpace(name)
+    @_ts   = new @linda.TupleSpace(@getOrCreateId())
+    # @unicastTs = new @linda.TupleSpace(@getOrCreateId())
     @tasks = new Tuples()
     @id = @getOrCreateId()
     @linda.io.once "connect", =>
@@ -33,10 +39,7 @@ class Client
       @watchUnicast()
       @watchBroadcast()
       @watchCancel()
-      @ts.write ["babascript", "alive", @id]
-      setInterval =>
-        @ts.write ["babascript", "alive", @id]
-      , 1000*60
+      @watchAliveCheck()
 
   next: (callback)->
     if @tasks.length > 0
@@ -54,13 +57,16 @@ class Client
           cid: tuple[3].cid || tuple[4].callback
           option: tuple[3]
         @tasks.push task
+        console.log @tasks
         if @tasks.length <= 1
           @task = @tasks.at 0
           format = @task.get("format") || "boolean"
           app.router.navigate "/client/#{@ts.name}/#{format}", true
 
   watchUnicast: ->
-    @ts.take ["babascript", @id], (tuple, info)=>
+    # @unicastTs ["babascript", "eval"], (tuple, info)=>
+    console.log @_ts
+    @_ts.take ["babascript", "eval"], (tuple, info)=>
       console.log "unicast!"
       console.log tuple
       task = new Tuple
@@ -73,7 +79,7 @@ class Client
       if @tasks.length <= 1
         @task = @tasks.at 0
         format = @task.get("format") || "boolean"
-        app.router.navigate "/client/#{@ts.name}/#{format}", true
+        app.router.navigate "/client/#{@_ts.name}/#{format}", true
 
   watchBroadcast: ->
     @ts.watch ["babascript", "broadcast"], (tuple, info)=>
@@ -81,6 +87,7 @@ class Client
       console.log tuple
       if tuple[2] is "ping"
         @ts.write ["babascript", "pong", @id]
+        return
       else
         task = new Tuple
           type: "broadcast"
@@ -106,23 +113,38 @@ class Client
           @task = null
           app.router.navigate "/client/#{@ts.name}/index", true
 
+  watchAliveCheck: ->
+    console.log "alive check!"
+    @ts.watch ["babascript", "alivecheck"], (tuple, info)=>
+      @ts.write ["babascript", "alive", @getOrCreateId()]
+
   cancel: ->
     @ts.write @task.toTuple()
     @tasks.remove @task
     @task = null
     @next()
 
-  returnValue: (value, option={})->
+  returnValue: (value, options={})->
+    options["worker"] = @getOrCreateId()
+    console.log @tasks.at(0).get("type")
+    if @tasks.at(0).get("type") is "unicast"
+      ts = @_ts
+    else
+      ts = @ts
     task = new Tuple
       type: "return"
       value: value
       cid: @task.get "cid"
+      options: options
     console.log task.toTuple()
-    @ts.write task.toTuple()
+    ts.write task.toTuple()
     @tasks.remove @task
     @task = null
     app.router.navigate "/client/#{@ts.name}/index", true
     @next()
+
+  routing: (format)->
+    app.router.navigate "/client/#{@ts.name}/#{format}", true
 
   numberOfTask: ->
     return @tasks.length()

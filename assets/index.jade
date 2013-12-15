@@ -4,35 +4,41 @@ html
     meta(charset='utf-8')
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
     link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css")
+    link(rel="stylesheet", href="/css/style.css")
   body
-    nav.navbar.navbar-default(role="navigation")
+    nav#header.navbar.navbar-default(role="navigation")
       div.navbar-header
-        a.navbar-brand BabaScript Client
+        a.header-title.navbar-brand BabaScript Client
     div#content.container 
   script#document-page(type="text/template")
-    div.documet-page
+    div.documet-page  
       h1 ドキュメントです！
   script#index-page(type="text/template")
     div.index-page
-      h1 いんでっくすぺーじだよ〜
+      img(src="images/")
+      h2 BabaScript
+
+      h2 BabaScript Client
   script#client-page(type="text/template")
     div.client-page
-      h1 くらいあんと
+      h1 命令を待ってください
   script#number-input-view(type="text/template")
     div.number
       h1 <%= title %>
-      input.number-value(type="number")
-      button(type="button") 値を返す
+      form(role="form", onsubmit="return false")
+        input.form-control.number-value(type="number", style="margin-bottom: 10px")
+      button.btn.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script#boolean-input-view(type="text/template")
     div.bool
       h1 <%= title %>
-      button.true.btn.btn-default.btn-block(type="button") はい
-      button.false.btn.btn-default.btn-block(type="button") いいえ
+      button.true.btn.btn-primary.btn-block(type="button") はい
+      button.false.btn.btn-danger.btn-block(type="button") いいえ
   script#string-input-view(type="text/template")
     div.string
       h1 <%= title %>
-      input.string-value(type="text")
-      button(type="button") 値を返す
+      form(role="form", onsubmit="return false")
+        input.form-control.string-value(type="text", style="margin-bottom: 10px")
+      button.btn.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script#list-input-view(type="text/template")
     div.list
       h1 <%= title %>
@@ -40,7 +46,7 @@ html
         <% _.each(items, function(item){ %>
         option<%= item %>
         <% }); %>
-      button(type="button") 値を返す
+      button.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src='//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js')
   script(src="/js/moment.min.js")

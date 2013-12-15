@@ -24,7 +24,6 @@ class ApplicationView extends Backbone.View
       else
         new ClientView()
     @render view.el
-    console.log viewName
 
 class BaseView extends Backbone.View
   tagName: "div"
@@ -40,6 +39,12 @@ class BaseView extends Backbone.View
 
   render: ->
 
+class HeaderView extends Backbone.View
+  el: "#header"
+
+  changeTitle: (title)->
+    $(".header-title").html title
+
 class Router extends Backbone.Router
 
   routes:
@@ -52,6 +57,9 @@ class Router extends Backbone.Router
     Backbone.history.start pushState: on
 
   index: ->
+    $(".header-title").html "babascript.org"
+    indexView = new IndexView()
+    app.mainView.render indexView.el
     console.log "index"
 
   doc: ->
@@ -62,6 +70,7 @@ class Router extends Backbone.Router
     if !window.app.Client.task?
       viewName = "index"
       @navigate "/client/#{tuplespace}/index"
+    $(".header-title").html "BabaScript Client -#{viewName}-"
     app.mainView.change viewName
 
 class IndexView extends BaseView
@@ -90,7 +99,6 @@ class StringView extends BaseView
     @$el.html @template option
 
   returnString: ->
-    console.log @$el.find(".string-value")
     @returnValue @$el.find(".string-value").val()
 
 class BooleanView extends BaseView
@@ -147,3 +155,4 @@ class NumberView extends BaseView
 
 app.mainView = new ApplicationView()
 app.router   = new Router()
+app.header   = new HeaderView()
