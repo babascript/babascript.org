@@ -42,8 +42,14 @@ class BaseView extends Backbone.View
 class HeaderView extends Backbone.View
   el: "#header"
 
+  events:
+    "click button.cancel-button": "cancelTask"
+
   changeTitle: (title)->
     $(".header-title").html title
+
+  cancelTask: ->
+    window.app.Client.cancel()
 
 class Router extends Backbone.Router
 
@@ -58,6 +64,7 @@ class Router extends Backbone.Router
 
   index: ->
     $(".header-title").html "babascript.org"
+    $(".cancel-button").hide()
     indexView = new IndexView()
     app.mainView.render indexView.el
     console.log "index"
@@ -65,13 +72,19 @@ class Router extends Backbone.Router
   doc: ->
     console.log "doc"
 
-  client: (tuplespace, viewName)->
-    window.app.Client ?= new Client tuplespace
+  client: (@tuplespace, viewName)->
+    window.app.Client ?= new Client tuplespace, @routingCallback
     if !window.app.Client.task?
       viewName = "index"
       @navigate "/client/#{tuplespace}/index"
-    $(".header-title").html "BabaScript Client -#{viewName}-"
+    $(".cancel-button").show()
+    $(".header-title").html "Agent -#{@tuplespace}-"
     app.mainView.change viewName
+
+  routingCallback: (ts, tuple)->
+    tuplespace = ts.name
+    format = tuple[3].format || "boolean"
+    app.router.navigate "/client/#{tuplespace}/#{format}", true
 
 class IndexView extends BaseView
   template: _.template ($ "#index-page").html()

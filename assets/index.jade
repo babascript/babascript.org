@@ -5,20 +5,80 @@ html
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
     link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css")
     link(rel="stylesheet", href="/css/style.css")
+    link(rel="stylesheet", href="/css/prettify.css")
   body
-    nav#header.navbar.navbar-default(role="navigation")
-      div.navbar-header
+    div#header.navbar.navbar-default(role="navigation")
+      div.container
         a.header-title.navbar-brand BabaScript Client
+        //- button.cancel-button.btn.btn-default.navbar-btn.pull-right(type="button") cancel
     div#content.container 
+  script#main-page(type="text/template", src="./main.jade")
   script#document-page(type="text/template")
     div.documet-page  
       h1 ドキュメントです！
   script#index-page(type="text/template")
     div.index-page
-      img(src="images/")
-      h2 BabaScript
+      div.jumbotron
+        h1 Project BabaScript
+        //- p BabaScript is framework for local human computation 
+      div.page-header
+        h2 概要
+      //- p BabaScript は、プログラムに人力処理を組み込むための一連のシステムだ。
+      //- p 人力処理構文をプログラム内で利用可能にするためのライブラリ BabaScript と、人に命令を伝え、その処理結果をプログラムに返すためのクライアントアプリ BabaScript Client から構成される。
+      //- p 処理させる対象を選択可能で、家族や職場の人など、より身近な人をプログラムに組み込むことが可能です。
+      //- p プログラム内で人はオブジェクトとなり、人オブジェクトに命令を送ることが実人間に命令を送ることと同義になる。
+      //- p コンピュータでは計算が難しい問題を人力を利用することで計算可能にする。
+      //- p BabaScript Client は通信ライブラリとなっており、これを組み込むことによって様々なアプリケーションに人力処理が適応可能となる。
 
-      h2 BabaScript Client
+      //- div.page-header
+      //-   h2 背景
+      //- div.page-header
+      //-   h2 提案
+      //- div.page-header
+      //-   h2 各種実装
+      div.page-header
+        h2 応用例
+      ul
+        li 仕事/役割のプログラム化
+        li 人を使った実世界プログラミング
+        li 人間をエラー処理に組み込む
+      //- div.page-header
+      //-   h2 検証
+      //- div.page-header
+      //-   h2 類似システム
+      p 人力処理構文ライブラリ BabaScript
+      p 人とプログラムの通信インタフェース BabaScript Client
+      div.page-header
+        h2 BabaScript
+      p BabaScript は、人力処理をプログラムに組み込むためのライブラリです。
+      h3 node.js (latest version)
+      p babascript for node.js is latest development version
+      p if you write a human code, please use babascript!
+      pre npm install babascript
+      h4 usage
+      div.highlight
+        pre
+          code.html
+            span {BabaScript} = new BabaScript()
+            span baba = new BabaScript("baba")
+            span baba. 
+      h3 ruby
+      p babascript for ruby is first prototype version
+      p We plan to update babascript to latest version, coming soon
+      pre gem install babascript
+      div.page-header
+        h2 BabaScript Client
+      p BabaScript Client は、BabaScriptからの命令を受け取り、人に伝え、人の処理結果をプログラムに返すためのクライアントアプリケーションです。
+      p 基本的な返り値インタフェースと、通信のためのライブラリを内包しています。
+      h3 web client
+      p access to http://babascript.org/client/space_name/format
+
+      h3 ios client
+      h3 android client
+      div.page-header
+        h2 Agent
+      p 
+
   script#client-page(type="text/template")
     div.client-page
       h1 命令を待ってください
@@ -49,6 +109,7 @@ html
       button.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src='//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js')
+  script(src='//google-code-prettify.googlecode.com/svn/loader/run_prettify.js')
   script(src="/js/moment.min.js")
   script(src="/js/linda.js")
   script(src='/js/underscore.js')

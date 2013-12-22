@@ -15,6 +15,11 @@ class Tuple extends Backbone.Model
     options = @get "options"
     return ["babascript", t, cid, v, options]
 
+  toCancelTuple: ->
+    key = @get "key"
+    option = @get "option"
+    return ["babascript", "eval", key, option, {"callback": @get "cid"}]
+
 class Tuples extends Backbone.Collection
   model: Tuple
 
@@ -26,7 +31,7 @@ class Client
   ts:    null
   id:    null
 
-  constructor: (name)->
+  constructor: (name, @routingCallback)->
     io     = new RocketIO().connect("http://linda.masuilab.org")
     @linda = new Linda(io)
     @ts    = new @linda.TupleSpace(name)
@@ -43,10 +48,16 @@ class Client
 
   next: (callback)->
     if @tasks.length > 0
-      console.log "task is remained"
+      console.log @tasks
       @task = @tasks.at 0
       format = @task.get("format") || "boolean"
-      app.router.navigate "/client/#{@ts.name}/#{format}", true
+      t  = @task.get "type"
+      key = @task.get "key"
+      cid = @task.get "cid"
+      option = {format: format, cid: cid}
+      tuple = ["babascript", t, key, option, {callback: cid}]
+      @routingCallback @ts, tuple
+      # app.router.navigate "/client/#{@ts.name}/#{format}", true
       # タスクがあるならそれを優先してやらせる
     else
       @ts.take ["babascript", "eval"], (tuple, info)=>
@@ -57,18 +68,15 @@ class Client
           cid: tuple[3].cid || tuple[4].callback
           option: tuple[3]
         @tasks.push task
-        console.log @tasks
         if @tasks.length <= 1
           @task = @tasks.at 0
           format = @task.get("format") || "boolean"
-          app.router.navigate "/client/#{@ts.name}/#{format}", true
+          @routingCallback @ts, tuple
+          # app.router.navigate "/client/#{@ts.name}/#{format}", true
 
   watchUnicast: ->
     # @unicastTs ["babascript", "eval"], (tuple, info)=>
-    console.log @_ts
-    @_ts.take ["babascript", "eval"], (tuple, info)=>
-      console.log "unicast!"
-      console.log tuple
+    @_ts.watch ["babascript", "eval"], (tuple, info)=>
       task = new Tuple
         type: "unicast"
         key: tuple[2]
@@ -79,12 +87,11 @@ class Client
       if @tasks.length <= 1
         @task = @tasks.at 0
         format = @task.get("format") || "boolean"
-        app.router.navigate "/client/#{@_ts.name}/#{format}", true
+        @routingCallback @ts, tuple
+        # app.router.navigate "/client/#{@_ts.name}/#{format}", true
 
   watchBroadcast: ->
     @ts.watch ["babascript", "broadcast"], (tuple, info)=>
-      console.log "broadcast!"
-      console.log tuple
       if tuple[2] is "ping"
         @ts.write ["babascript", "pong", @id]
         return
@@ -99,7 +106,8 @@ class Client
         if @tasks.length <= 1
           @task = @tasks.at 0
           format = @task.get("format") || "boolean"
-          app.router.navigate "/client/#{@ts.name}/#{format}", true
+          @routingCallback @ts, tuple
+          # app.router.navigate "/client/#{@ts.name}/#{format}", true
 
   watchCancel: ->
     @ts.watch ["babascript", "cancel"], (tuple, info)=>
@@ -107,21 +115,23 @@ class Client
       cancelTask = @tasks.findWhere cid: callbackId
       if cancelTask?
         @tasks.remove cancelTask
-        console.log @task
-        console.log cancelTask
         if @task.get("cid") is cancelTask.get("cid")
           @task = null
+          # @routingCallback @ts, tuple
           app.router.navigate "/client/#{@ts.name}/index", true
 
   watchAliveCheck: ->
-    console.log "alive check!"
     @ts.watch ["babascript", "alivecheck"], (tuple, info)=>
       @ts.write ["babascript", "alive", @getOrCreateId()]
 
   cancel: ->
-    @ts.write @task.toTuple()
+    if @tasks.length is 0
+      return
+    if @task.get("type" ) is "eval"
+      @ts.write @task.toCancelTuple()
     @tasks.remove @task
     @task = null
+    app.router.navigate "/client/#{@ts.name}/index", true
     @next()
 
   returnValue: (value, options={})->
@@ -136,7 +146,6 @@ class Client
       value: value
       cid: @task.get "cid"
       options: options
-    console.log task.toTuple()
     ts.write task.toTuple()
     @tasks.remove @task
     @task = null
@@ -150,16 +159,18 @@ class Client
     return @tasks.length()
 
   getOrCreateId: ->
-    storage = window.localStorage
-    if storage?
-      if storage.getItem "id"
-        return storage.getItem "id"
-      else
-        id = (moment().valueOf())+(Math.random()%10000).toString()
-        storage.setItem "id", id
-        return id
-    else
-      return (moment().valueOf())+(Math.random()%10000).toString()
+    return @testid ?= (moment().valueOf())+(Math.random()%10000).toString()
+    # return (moment().valueOf())+(Math.random()%10000).toString()
+    # storage = window.localStorage
+    # if storage?
+    #   if storage.getItem "id"
+    #     return storage.getItem "id"
+    #   else
+    #     id = (moment().valueOf())+(Math.random()%10000).toString()
+    #     storage.setItem "id", id
+    #     return id
+    # else
+    #   return (moment().valueOf())+(Math.random()%10000).toString()
 
 
 window.Client = Client
