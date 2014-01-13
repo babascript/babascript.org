@@ -58,6 +58,7 @@ class Router extends Backbone.Router
     "doc": "doc"
     "client/:tuplespace/": "client"
     "client/:tuplespace/:view": "client"
+    "manager/:space": "manager"
 
   initialize: ->
     Backbone.history.start pushState: on
