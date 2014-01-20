@@ -82,9 +82,14 @@ class Router extends Backbone.Router
     $(".header-title").html "Agent -#{@tuplespace}-"
     app.mainView.change viewName
 
+  manager: (space)->
+
+
   routingCallback: (ts, tuple)->
+    console.log ts
     tuplespace = ts.name
-    format = tuple[3].format || "boolean"
+    format = tuple.format || "boolean"
+    # format = tuple[3].format || "boolean"
     app.router.navigate "/client/#{tuplespace}/#{format}", true
 
 class IndexView extends BaseView
@@ -142,7 +147,7 @@ class ListView extends BaseView
   initialize: ->
     option =
       title: app.Client.task.get "key"
-      items: app.Client.task.get("option").list
+      items: app.Client.task.get("list")
     @render option
 
   render: (option)->
@@ -165,7 +170,7 @@ class NumberView extends BaseView
     @$el.html @template option
 
   returnNumber: ->
-    @returnValue parseInt(@$el.find(".number-value").val())
+    @returnValue parseInt(@$el.find(".number-value").val(), 10)
 
 app.mainView = new ApplicationView()
 app.router   = new Router()
