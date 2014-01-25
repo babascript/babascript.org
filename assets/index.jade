@@ -85,33 +85,39 @@ html
   script#number-input-view(type="text/template")
     div.number
       h1 <%= title %>
+      p.description <%= description %>
       form(role="form", onsubmit="return false")
         input.form-control.number-value(type="number", style="margin-bottom: 10px")
       button.btn.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script#boolean-input-view(type="text/template")
     div.bool
       h1 <%= title %>
+      p.description <%= description %>
       button.true.btn.btn-primary.btn-block(type="button") はい
       button.false.btn.btn-danger.btn-block(type="button") いいえ
   script#string-input-view(type="text/template")
     div.string
       h1 <%= title %>
+      p.description <%= description %>
       form(role="form", onsubmit="return false")
         input.form-control.string-value(type="text", style="margin-bottom: 10px")
       button.btn.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script#list-input-view(type="text/template")
     div.list
       h1 <%= title %>
+      p.description <%= description %>
       select.form-control
         <% _.each(items, function(item){ %>
         option<%= item %>
         <% }); %>
       button.btn-primary.btn-lg.btn-block(type="button") 値を返す
+  script(src="http://localhost:5000/socket.io/socket.io.js")
+  script(src="http://localhost:5000/linda/linda-socket.io.js")
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src='//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js')
   script(src='//google-code-prettify.googlecode.com/svn/loader/run_prettify.js')
   script(src="/js/moment.js")
-  script(src="/js/linda.js")
+  //- script(src="/js/linda.js")
   script(src='/js/underscore.js')
   script(src='/js/backbone.js')
   script(src='/js/babascript.js')

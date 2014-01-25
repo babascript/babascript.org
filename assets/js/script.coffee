@@ -12,7 +12,7 @@ class ApplicationView extends Backbone.View
   change: (viewName)->
     view = switch viewName
       when "", "index"
-        new ClientView()
+        new ClientView() 
       when "boolean", "bool"
         new BooleanView()
       when "string"
@@ -74,23 +74,23 @@ class Router extends Backbone.Router
     console.log "doc"
 
   client: (@tuplespace, viewName)->
-    window.app.Client ?= new Client tuplespace, @routingCallback
+    if !app.Client?
+      app.Client ?= new Client @tuplespace #, @routingCallback 
+      app.Client.on "get_task", (tuple)=>
+        format = tuple.get("format") || "boolean"
+        app.router.navigate "/client/#{@tuplespace}/#{format}", true
+      app.Client.on "cancel_task", ->
+        app.router.navigate "/client/#{@tuplespace}/index", true
+        console.log 'cancel'
     if !window.app.Client.task?
       viewName = "index"
-      @navigate "/client/#{tuplespace}/index"
+      @navigate "/client/#{@tuplespace}/index"
     $(".cancel-button").show()
     $(".header-title").html "Agent -#{@tuplespace}-"
     app.mainView.change viewName
 
   manager: (space)->
 
-
-  routingCallback: (ts, tuple)->
-    console.log ts
-    tuplespace = ts.name
-    format = tuple.format || "boolean"
-    # format = tuple[3].format || "boolean"
-    app.router.navigate "/client/#{tuplespace}/#{format}", true
 
 class IndexView extends BaseView
   template: _.template ($ "#index-page").html()
@@ -112,6 +112,7 @@ class StringView extends BaseView
   initialize: ->
     option =
       title: app.Client.task.get "key"
+      description: app.Client.task.get "description"
     @render option
 
   render: (option)->
@@ -129,6 +130,7 @@ class BooleanView extends BaseView
   initialize: ->
     option =
       title: app.Client.task.get "key"
+      description: app.Client.task.get "description"
     @render(option)
 
   render: (option)->
@@ -148,6 +150,7 @@ class ListView extends BaseView
     option =
       title: app.Client.task.get "key"
       items: app.Client.task.get("list")
+      description: app.Client.task.get "description"
     @render option
 
   render: (option)->
@@ -164,6 +167,7 @@ class NumberView extends BaseView
   initialize: ->
     option =
       title: app.Client.task.get "key"
+      description: app.Client.task.get "description"
     @render option
 
   render: (option)->

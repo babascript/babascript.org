@@ -1,9 +1,4 @@
-# class Tuple extends Backbone.Model
-#   defaults:
-#     type: null
-#     cid: null
-#     format: null
-#     options: null
+
 
 #   initialize: ->
 
@@ -30,22 +25,21 @@ class Tuple extends Backbone.Model
 class Tuples extends Backbone.Collection
   model: Tuple
 
-class Client
+class Client extends io.EventEmitter
 
   task:  null
-  tasks: new Tuples()
+  tasks: null
   @linda: null
   ts:    null
   id:    null
 
-  constructor: (name, @routingCallback)->
-    io     = new RocketIO().connect "http://localhost:5000"
-    @linda = new Linda(io)
-    @ts    = new @linda.TupleSpace(name)
+  constructor: (name)->
+    socket = io.connect "http://localhost:5000/"
+    @linda ?= new Linda().connect socket
+    @ts = @linda.tuplespace name
     @tasks = new Tuples()
     @id = @getOrCreateId()
-    @linda.io.once "connect", =>
-      console.log "hoge"
+    socket.on "connect", =>
       @next()
       @watchUnicast()
       @watchBroadcast()
@@ -57,15 +51,16 @@ class Client
       console.log @tasks
       @task = @tasks.at 0
       format = @task.get("format") || "boolean"
-      @routingCallback @ts, tuple
+      @emit "get_task", @task
+      # @routingCallback @ts, tuple
       # app.router.navigate "/client/#{@ts.name}/#{format}", true
       # タスクがあるならそれを優先してやらせる
     else
-      @ts.take {baba: "script", type: "eval"}, (tuple, info)=>
-        task = new Tuple tuple
+      @ts.take {baba: "script", type: "eval"}, (errr, tuple)=>
+        task = new Tuple tuple.data
         if @tasks.length is 0
           @task = task
-          @routingCallback @ts, tuple
+          @emit "get_task", @task
         @tasks.push task
 
   watchUnicast: ->
@@ -74,18 +69,18 @@ class Client
       type: "unicast"
       unicast: @getOrCreateId()
     @ts.watch t, (tuple, info)=>
-      task = new Tuple tuple
+      task = new Tuple tuple.data
       if @tasks.length is 0
         @task = task
-        @routingCallback @ts, tuple
+        @emit "get_task", task
       @tasks.push task
 
   watchBroadcast: ->
     @ts.watch {baba: "script", type: "broadcast"}, (tuple, info)=>
-      task = new Tuple tuple
+      task = new Tuple tuple.data
       if @tasks.length is 0
         @task = task
-        @routingCallback @ts, tuple
+        @emit "get_task", task
       @tasks.push task
 
   watchCancel: ->
@@ -96,8 +91,9 @@ class Client
         @tasks.remove cancelTask
         if @task.get("cid") is cancelTask.get("cid")
           @task = null
+          @emit "cancel_task"
           # @routingCallback @ts, tuple
-          app.router.navigate "/client/#{@ts.name}/index", true
+          # app.router.navigate "/client/#{@ts.name}/index", true
 
   watchAliveCheck: ->
     @ts.watch {baba: "script", type: "aliveCheck"}, (tuple, info)=>
@@ -110,7 +106,8 @@ class Client
       @ts.write @task.toCancelTuple()
     @tasks.remove @task
     @task = null
-    app.router.navigate "/client/#{@ts.name}/index", true
+    @emit "cancel_task"
+    # app.router.navigate "/client/#{@ts.name}/index", true
     @next()
 
   returnValue: (value, options={})->
@@ -123,6 +120,7 @@ class Client
     @ts.write task
     @tasks.remove @task
     @task = null
+    @emit "cancel_task"
     app.router.navigate "/client/#{@ts.name}/index", true
     @next()
 
