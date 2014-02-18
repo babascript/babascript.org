@@ -12,7 +12,7 @@ class ApplicationView extends Backbone.View
   change: (viewName)->
     view = switch viewName
       when "", "index"
-        new ClientView() 
+        new ClientView()
       when "boolean", "bool"
         new BooleanView()
       when "string"
@@ -75,7 +75,7 @@ class Router extends Backbone.Router
 
   client: (@tuplespace, viewName)->
     if !app.Client?
-      app.Client ?= new Client @tuplespace #, @routingCallback 
+      app.Client ?= new Client @tuplespace #, @routingCallback
       app.Client.on "get_task", (tuple)=>
         format = tuple.get("format") || "boolean"
         app.router.navigate "/client/#{@tuplespace}/#{format}", true

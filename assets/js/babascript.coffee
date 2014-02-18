@@ -34,7 +34,7 @@ class Client extends io.EventEmitter
   id:    null
 
   constructor: (name)->
-    socket = io.connect "http://localhost:5000/"
+    socket = io.connect "http://linda.babascript.org"
     @linda ?= new Linda().connect socket
     @ts = @linda.tuplespace name
     @tasks = new Tuples()
@@ -52,11 +52,9 @@ class Client extends io.EventEmitter
       @task = @tasks.at 0
       format = @task.get("format") || "boolean"
       @emit "get_task", @task
-      # @routingCallback @ts, tuple
-      # app.router.navigate "/client/#{@ts.name}/#{format}", true
-      # タスクがあるならそれを優先してやらせる
     else
-      @ts.take {baba: "script", type: "eval"}, (errr, tuple)=>
+      @ts.take {baba: "script", type: "eval"}, (err, tuple)=>
+        console.log tuple
         task = new Tuple tuple.data
         if @tasks.length is 0
           @task = task
@@ -68,7 +66,7 @@ class Client extends io.EventEmitter
       baba: "script"
       type: "unicast"
       unicast: @getOrCreateId()
-    @ts.watch t, (tuple, info)=>
+    @ts.watch t, (err, tuple)=>
       task = new Tuple tuple.data
       if @tasks.length is 0
         @task = task
@@ -76,7 +74,7 @@ class Client extends io.EventEmitter
       @tasks.push task
 
   watchBroadcast: ->
-    @ts.watch {baba: "script", type: "broadcast"}, (tuple, info)=>
+    @ts.watch {baba: "script", type: "broadcast"}, (err, tuple)=>
       task = new Tuple tuple.data
       if @tasks.length is 0
         @task = task
@@ -84,7 +82,7 @@ class Client extends io.EventEmitter
       @tasks.push task
 
   watchCancel: ->
-    @ts.watch {baba: "script", type: "cancel"}, (tuple, info)=>
+    @ts.watch {baba: "script", type: "cancel"}, (err, tuple)=>
       callbackId = tuple.cid
       cancelTask = @tasks.findWhere cid: callbackId
       if cancelTask?
@@ -96,7 +94,7 @@ class Client extends io.EventEmitter
           # app.router.navigate "/client/#{@ts.name}/index", true
 
   watchAliveCheck: ->
-    @ts.watch {baba: "script", type: "aliveCheck"}, (tuple, info)=>
+    @ts.watch {baba: "script", type: "aliveCheck"}, (err, tuple)=>
       @ts.write {baba: "script", alve: true, id: @getOrCreateId()}
 
   cancel: ->
