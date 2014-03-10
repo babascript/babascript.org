@@ -129,7 +129,8 @@ module.exports = (grunt) ->
 
     watch:
       options:
-        livereload: yes
+        livereload:
+          port: 3031
         interrupt: yes
       imgbuild:
         files: ['assets/**/*.{jpg,png,gif}']
@@ -147,7 +148,7 @@ module.exports = (grunt) ->
     connect:
       server:
         options:
-          port: 3000
+          port: 4000
           middleware: (connect, options) ->
             mw = [connect.logger 'dev']
             mw.push (req, res) ->

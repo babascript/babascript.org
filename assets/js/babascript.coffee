@@ -1,20 +1,3 @@
-
-
-#   initialize: ->
-
-
-#   toTuple: (type)->
-#     t = @get "type"
-#     cid = @get "cid"
-#     v = @get "value"
-#     options = @get "options"
-#     return ["babascript", t, cid, v, options]
-
-#   toCancelTuple: ->
-#     key = @get "key"
-#     option = @get "option"
-#     return ["babascript", "eval", key, option, {"callback": @get "cid"}]
-
 class Tuple extends Backbone.Model
   defaults:
     baba: "script"
@@ -34,7 +17,8 @@ class Client extends io.EventEmitter
   id:    null
 
   constructor: (name)->
-    socket = io.connect "http://linda.babascript.org"
+    # socket = io.connect "http://linda.babascript.org"
+    socket = io.connect "http://localhost:3000/"
     @linda ?= new Linda().connect socket
     @ts = @linda.tuplespace name
     @tasks = new Tuples()
