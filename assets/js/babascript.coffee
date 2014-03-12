@@ -15,16 +15,30 @@ class Client extends io.EventEmitter
   @linda: null
   ts:    null
   id:    null
+  connected: false
 
   constructor: (name)->
     # socket = io.connect "http://linda.babascript.org"
-    socket = io.connect "http://localhost:3000/"
+    # socket = io.connect "http://localhost:3000/"
+    socket = io.connect "http://133.27.246.111:3000/"
     @linda ?= new Linda().connect socket
     @ts = @linda.tuplespace name
+    @reporter = @linda.tuplespace "active_task"
     @tasks = new Tuples()
     @id = @getOrCreateId()
     socket.on "connect", =>
+      connected = true
       @next()
+      @ts.write
+        type: "connect"
+        name: @ts.name
+      # @ts.write {type: "notify", name: @ts.name}
+      # @ts.take {type: "notify2", name: @ts.name}, (err, r)=>
+      #   tuple =
+      #     type: "connect"
+      #     name: r.data.name
+      #     group: r.data.group
+      #   @ts.write tuple
       @watchUnicast()
       @watchBroadcast()
       @watchCancel()
@@ -38,7 +52,15 @@ class Client extends io.EventEmitter
       @emit "get_task", @task
     else
       @ts.take {baba: "script", type: "eval"}, (err, tuple)=>
-        console.log tuple
+        _t =
+          status: "receive"
+          group: tuple.data.name
+          id: @ts.name
+          key: tuple.data.key
+          cid: tuple.data.cid
+        console.log _t
+        console.log tuple.data
+        @reporter.write _t
         task = new Tuple tuple.data
         if @tasks.length is 0
           @task = task
@@ -97,8 +119,10 @@ class Client extends io.EventEmitter
       type: "return"
       value: value
       cid: @task.get "cid"
+      name: @ts.name
       worker: @getOrCreateId()
       options: options
+      _task: @task
     @ts.write task
     @tasks.remove @task
     @task = null

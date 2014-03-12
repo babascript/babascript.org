@@ -59,6 +59,7 @@ class Router extends Backbone.Router
     "client/:tuplespace/": "client"
     "client/:tuplespace/:view": "client"
     "manager/:space": "manager"
+    "u/:id(/:view)": "user"
 
   initialize: ->
     Backbone.history.start pushState: on
@@ -72,6 +73,11 @@ class Router extends Backbone.Router
 
   doc: ->
     console.log "doc"
+
+  user: ->
+    loginView = new LoginView()
+    loginView.render()
+    console.log "user"
 
   client: (@tuplespace, viewName)->
     if !app.Client?
@@ -175,6 +181,35 @@ class NumberView extends BaseView
 
   returnNumber: ->
     @returnValue parseInt(@$el.find(".number-value").val(), 10)
+
+class SessionModel extends Backbone.Model
+  defaults:
+    sessionId: ""
+    id: ""
+    password: ""
+
+  isAuthorized: ->
+    return @sessiond?
+
+class LoginView extends Backbone.View
+
+  events:
+    "click .login-button": "login"
+
+  render: ->
+    html = _.template($("#login-view").html())()
+    $(@.el).append html
+    $("body").append @.el
+    $("#login-modal").modal()
+
+  login: (e)->
+    e.preventDefault()
+    console.log @el
+    id = $(@.el).find(".form-id").val()
+    pass = $(@.el).find(".form-pass").val()
+    session = new SessionModel
+      id: id
+      password: pass
 
 app.mainView = new ApplicationView()
 app.router   = new Router()

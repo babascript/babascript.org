@@ -111,13 +111,30 @@ html
         option<%= item %>
         <% }); %>
       button.btn-primary.btn-lg.btn-block(type="button") 値を返す
+  script#login-view(type="text/template")
+    #login-modal.modal.fade(role="dialog", aria-labelledby="loginModalLabel", aria-hidden="true", tab-index="-1")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type="button", data-dismiss="modal", aria-hidden="true") x
+            h2.text-center Login
+          .modal-body
+            form.form.col-md-12.center-block
+              .form-group
+                input.form-id.form-control.input-lg(type="text", placeholder="id")
+              .form-group
+                input.form-pass.form-control.input-lg(type="password", placeholder="password")
+              .form-group
+                button.login-button.btn.btn-primary.btn-lg.btn-block Sign In
+                span.pull-right
+                  a sign up
+                  
   script(src="//linda.babascript.org/socket.io/socket.io.js")
   script(src="//linda.babascript.org/linda/linda-socket.io.js")
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")
   script(src='//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js')
   script(src='//google-code-prettify.googlecode.com/svn/loader/run_prettify.js')
   script(src="/js/moment.js")
-  //- script(src="/js/linda.js")
   script(src='/js/underscore.js')
   script(src='/js/backbone.js')
   script(src='/js/babascript.js')

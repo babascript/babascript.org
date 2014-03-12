@@ -1,5 +1,13 @@
 # BabaScript.org
 
+
+
+## Routing
+
+/u/:id
+/u/:id/group/:name
+/m/
+
 <<<<<<< HEAD
 * webpage about babascript
 * babascript client for web
