@@ -2,6 +2,8 @@
 html
   head
     meta(charset='utf-8')
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
     link(rel="stylesheet", href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css")
     link(rel="stylesheet", href="/css/style.css")
@@ -81,30 +83,35 @@ html
 
   script#client-page(type="text/template")
     div.client-page
-      h1 命令を待ってください
+      h3 命令を待ってください
   script#number-input-view(type="text/template")
     div.number
-      h1 <%= title %>
+      h3 <%= title %>
       p.description <%= description %>
       form(role="form", onsubmit="return false")
         input.form-control.number-value(type="number", style="margin-bottom: 10px")
       button.btn.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script#boolean-input-view(type="text/template")
     div.bool
-      h1 <%= title %>
+      h3 <%= title %>
       p.description <%= description %>
       button.true.btn.btn-primary.btn-block(type="button") はい
       button.false.btn.btn-danger.btn-block(type="button") いいえ
+  script#void-input-view(type="text/template")
+    div.void
+      h3 <%= title %>
+      p.description <%= description %>
+      button.void.btn.btn-primary.btn-block(type="button") はい
   script#string-input-view(type="text/template")
     div.string
-      h1 <%= title %>
+      h3 <%= title %>
       p.description <%= description %>
       form(role="form", onsubmit="return false")
         input.form-control.string-value(type="text", style="margin-bottom: 10px")
       button.btn.btn-primary.btn-lg.btn-block(type="button") 値を返す
   script#list-input-view(type="text/template")
     div.list
-      h1 <%= title %>
+      h3 <%= title %>
       p.description <%= description %>
       select.form-control
         <% _.each(items, function(item){ %>
@@ -128,7 +135,6 @@ html
                 button.login-button.btn.btn-primary.btn-lg.btn-block Sign In
                 span.pull-right
                   a sign up
-                  
   script(src="//linda.babascript.org/socket.io/socket.io.js")
   script(src="//linda.babascript.org/linda/linda-socket.io.js")
   script(src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js")

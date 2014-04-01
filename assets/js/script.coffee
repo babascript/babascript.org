@@ -21,6 +21,8 @@ class ApplicationView extends Backbone.View
         new ListView()
       when "number", "int"
         new NumberView()
+      when "void"
+        new VoidView()
       else
         new ClientView()
     @render view.el
@@ -146,6 +148,23 @@ class BooleanView extends BaseView
     @returnValue true
   returnFalse: ->
     @returnValue false
+
+class VoidView extends BaseView
+  template: _.template ($ "#void-input-view").html()
+  events:
+    "click .void":  "returnTrue"
+
+  initialize: ->
+    option =
+      title: app.Client.task.get "key"
+      description: app.Client.task.get "description"
+    @render(option)
+
+  render: (option)->
+    @$el.html @template(option)
+
+  returnTrue: ->
+    @returnValue true
 
 class ListView extends BaseView
   template: _.template ($ "#list-input-view").html()

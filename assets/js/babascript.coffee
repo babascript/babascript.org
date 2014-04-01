@@ -20,25 +20,20 @@ class Client extends io.EventEmitter
   constructor: (name)->
     # socket = io.connect "http://linda.babascript.org"
     # socket = io.connect "http://localhost:3000/"
-    socket = io.connect "http://133.27.246.111:3000/"
+    # socket = io.connect "http://172.20.10.2:3000/"
+    socket = io.connect "http://#{window.location.hostname}:3000/"
     @linda ?= new Linda().connect socket
     @ts = @linda.tuplespace name
     @reporter = @linda.tuplespace "active_task"
     @tasks = new Tuples()
     @id = @getOrCreateId()
     socket.on "connect", =>
+      console.log "connect!!"
       connected = true
       @next()
       @ts.write
         type: "connect"
         name: @ts.name
-      # @ts.write {type: "notify", name: @ts.name}
-      # @ts.take {type: "notify2", name: @ts.name}, (err, r)=>
-      #   tuple =
-      #     type: "connect"
-      #     name: r.data.name
-      #     group: r.data.group
-      #   @ts.write tuple
       @watchUnicast()
       @watchBroadcast()
       @watchCancel()
