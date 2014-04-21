@@ -19,9 +19,9 @@ class Client extends io.EventEmitter
 
   constructor: (name)->
     # socket = io.connect "http://linda.babascript.org"
-    # socket = io.connect "http://localhost:3000/"
+    socket = io.connect "http://localhost:3000/"
     # socket = io.connect "http://172.20.10.2:3000/"
-    socket = io.connect "http://#{window.location.hostname}:3000/"
+    # socket = io.connect "http://#{window.location.hostname}:3000/"
     @linda ?= new Linda().connect socket
     @ts = @linda.tuplespace name
     @reporter = @linda.tuplespace "active_task"
@@ -47,14 +47,13 @@ class Client extends io.EventEmitter
       @emit "get_task", @task
     else
       @ts.take {baba: "script", type: "eval"}, (err, tuple)=>
+        throw err if err
         _t =
           status: "receive"
           group: tuple.data.name
           id: @ts.name
           key: tuple.data.key
           cid: tuple.data.cid
-        console.log _t
-        console.log tuple.data
         @reporter.write _t
         task = new Tuple tuple.data
         if @tasks.length is 0
@@ -84,13 +83,16 @@ class Client extends io.EventEmitter
 
   watchCancel: ->
     @ts.watch {baba: "script", type: "cancel"}, (err, tuple)=>
-      callbackId = tuple.cid
+      throw err if err
+      callbackId = tuple.data.cid
       cancelTask = @tasks.findWhere cid: callbackId
       if cancelTask?
+        console.log "cancel!!cancel!!"
         @tasks.remove cancelTask
         if @task.get("cid") is cancelTask.get("cid")
           @task = null
           @emit "cancel_task"
+          @next()
           # @routingCallback @ts, tuple
           # app.router.navigate "/client/#{@ts.name}/index", true
 
@@ -99,10 +101,11 @@ class Client extends io.EventEmitter
       @ts.write {baba: "script", alve: true, id: @getOrCreateId()}
 
   cancel: ->
-    if @tasks.length is 0
-      return
-    if @task.get("type" ) is "eval"
-      @ts.write @task.toCancelTuple()
+    return if (@tasks.length is 0) or !@task?
+    if @task.get("type") is "eval"
+      @ts.write {baba: "script", type: 'cancel', cid: @task.get "cid"}
+      # @ts.cancel @task.get "cid"
+      # @ts.write @task.toCancelTuple()
     @tasks.remove @task
     @task = null
     @emit "cancel_task"
@@ -122,7 +125,7 @@ class Client extends io.EventEmitter
     @tasks.remove @task
     @task = null
     @emit "cancel_task"
-    app.router.navigate "/client/#{@ts.name}/index", true
+    # app.router.navigate "/client/#{@ts.name}/index", true
     @next()
 
   routing: (format)->

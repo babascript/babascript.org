@@ -1,7 +1,7 @@
 !!! 5
 html
   head
-    meta(charset='utf-8')
+    meta(charset='UTF-8')
     meta(name="apple-mobile-web-app-capable", content="yes")
     meta(name="apple-mobile-web-app-status-bar-style", content="black")
     meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
@@ -12,8 +12,26 @@ html
     div#header.navbar.navbar-default(role="navigation")
       div.container
         a.header-title.navbar-brand babascript.org
+        .btn-group.pull-right
+          button.btn.btn-default.dropdown-toggle(type="button", data-toggle="dropdown", style="margin-top: 10px")
+            span.glyphicon.glyphicon-list
+          ul.dropdown-menu(role="menu")
+            li: a.cancel-button キャンセル
+            li: a.settings-button 設定
         //- button.cancel-button.btn.btn-default.navbar-btn.pull-right(type="button") cancel
     div#content.container
+    #settings.settings-view.modal.fade
+      .modal-dialog
+        .modal-content
+          .modal-header
+            設定
+            button.close(type="button", data-dismiss="modal", aria-hidden="true") x
+          .modal-body
+            .form-group
+              label(for="username") username
+              input#username.form-control(placeholder="username")
+            button.update.btn.btn-default(type="button") 更新する
+          .modal-footer
   script#main-page(type="text/template", src="./main.jade")
   script#document-page(type="text/template")
     div.documet-page
@@ -118,6 +136,24 @@ html
         option<%= item %>
         <% }); %>
       button.btn-primary.btn-lg.btn-block(type="button") 値を返す
+  script#numtipleselect-input-view(type="text/template")
+    div.multiple-select
+      h3 <%= title %>
+      p.description <%= description %>
+
+  script#settings-view(type="text/template")
+    #settings.settings-view.modal.fade
+    .modal-dialog
+      .modal-content
+        .modal-header
+          設定
+        .modal-body
+          .form-group
+            label(for="username")
+            input#username.form-control(placeholder="username")
+        .modal-footer
+
+
   script#login-view(type="text/template")
     #login-modal.modal.fade(role="dialog", aria-labelledby="loginModalLabel", aria-hidden="true", tab-index="-1")
       .modal-dialog

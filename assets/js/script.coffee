@@ -23,6 +23,8 @@ class ApplicationView extends Backbone.View
         new NumberView()
       when "void"
         new VoidView()
+      when "multipleselect"
+        new VoidView()
       else
         new ClientView()
     @render view.el
@@ -45,13 +47,21 @@ class HeaderView extends Backbone.View
   el: "#header"
 
   events:
-    "click button.cancel-button": "cancelTask"
+    "click a.cancel-button": "cancelTask"
+    "click a.settings-button": "settings"
 
   changeTitle: (title)->
     $(".header-title").html title
 
   cancelTask: ->
+    console.log "cancel task"
     window.app.Client.cancel()
+
+  settings: ->
+    @settingsView ?= new SettingsView()
+    @settingsView.render()
+    # $("body").append @settingsView.el
+    console.log "settings"
 
 class Router extends Backbone.Router
 
@@ -62,6 +72,7 @@ class Router extends Backbone.Router
     "client/:tuplespace/:view": "client"
     "manager/:space": "manager"
     "u/:id(/:view)": "user"
+    "client/:tuplespace/settings": "settings"
 
   initialize: ->
     Backbone.history.start pushState: on
@@ -82,12 +93,20 @@ class Router extends Backbone.Router
     console.log "user"
 
   client: (@tuplespace, viewName)->
+    username = window.localStorage.getItem("username")
+    if !username
+      $("#settings").modal()
+      (new SettingsView()).render()
+      return
+    if username isnt @tuplespace
+      url = "#{window.location.origin}/client/#{username}/index"
+      window.location.href = url
     if !app.Client?
       app.Client ?= new Client @tuplespace #, @routingCallback
       app.Client.on "get_task", (tuple)=>
         format = tuple.get("format") || "boolean"
         app.router.navigate "/client/#{@tuplespace}/#{format}", true
-      app.Client.on "cancel_task", ->
+      app.Client.on "cancel_task", =>
         app.router.navigate "/client/#{@tuplespace}/index", true
         console.log 'cancel'
     if !window.app.Client.task?
@@ -98,6 +117,9 @@ class Router extends Backbone.Router
     app.mainView.change viewName
 
   manager: (space)->
+
+  settings: ->
+
 
 
 class IndexView extends BaseView
@@ -174,7 +196,7 @@ class ListView extends BaseView
   initialize: ->
     option =
       title: app.Client.task.get "key"
-      items: app.Client.task.get("list")
+      items: app.Client.task.get "list"
       description: app.Client.task.get "description"
     @render option
 
@@ -200,6 +222,46 @@ class NumberView extends BaseView
 
   returnNumber: ->
     @returnValue parseInt(@$el.find(".number-value").val(), 10)
+
+# class MultipleSelectView extends BaseView
+#   template: _.template ($ "#multipleselect-input-viuew").html()
+
+#   initialize: ->
+#     option =
+#       title: app.Client.task.get "key"
+#       items: app.Client.task.get "list"
+#       description: app.Client.task.get "description"
+#     @render option
+
+#   render: (option)->
+#     @$el.html @template option
+
+#   returnNumber: ->
+#     # 選んだものをリストで返す
+#     @returnValue []
+
+class SettingsView extends Backbone.View
+  el: "div.settings-view"
+
+  events:
+    "click button.update": "update"
+
+  initialize: ->
+
+  render: ->
+    username = window.localStorage.getItem "username"
+    console.log username
+    @show()
+
+  show: ->
+    $(@.el).modal()
+
+  update: ->
+    username = $(@.el).find("input#username").val()
+    window.localStorage.setItem "username", username
+    $(@.el).modal()
+    window.location.reload()
+
 
 class SessionModel extends Backbone.Model
   defaults:
