@@ -70,6 +70,7 @@ class Router extends Backbone.Router
     "doc": "doc"
     "client/:tuplespace/": "client"
     "client/:tuplespace/:view": "client"
+    "client/": "client"
     "manager/:space": "manager"
     "u/:id(/:view)": "user"
     "client/:tuplespace/settings": "settings"

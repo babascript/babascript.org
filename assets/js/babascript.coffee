@@ -18,8 +18,8 @@ class Client extends io.EventEmitter
   connected: false
 
   constructor: (name)->
-    # socket = io.connect "http://linda.babascript.org"
-    socket = io.connect "http://localhost:3000/"
+    socket = io.connect "http://linda.babascript.org:80/"
+    # socket = io.connect "http://localhost:3000/"
     # socket = io.connect "http://172.20.10.2:3000/"
     # socket = io.connect "http://#{window.location.hostname}:3000/"
     @linda ?= new Linda().connect socket
@@ -118,7 +118,8 @@ class Client extends io.EventEmitter
       value: value
       cid: @task.get "cid"
       name: @ts.name
-      worker: @getOrCreateId()
+      worker: @ts.name
+      # worker: @getOrCreateId()
       options: options
       _task: @task
     @ts.write task
